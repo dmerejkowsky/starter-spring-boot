@@ -16,6 +16,10 @@ public class Task {
     @Column(name = "done")
     private boolean done;
 
+    public Task() {
+        this(null, null, false);
+    }
+
     public Task(Long id, String description, boolean done) {
         this.id = id;
         this.description = description;

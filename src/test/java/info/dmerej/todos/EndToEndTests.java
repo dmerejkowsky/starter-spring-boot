@@ -8,7 +8,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.ResultActions;
 
 import java.nio.charset.StandardCharsets;
 
@@ -38,38 +37,37 @@ public class EndToEndTests {
 
     @Test
     void create_a_task_then_get_it() throws Exception {
-        var json = doPost("/task", "new task").andReturn().getResponse().getContentAsString();
+        var json = doPost("/task", "new task");
         var created = parseTask(json);
         assertThat(created.isDone()).isFalse();
         var id = created.getId();
 
-        json = doGet("/task/" + id.toString()).andReturn().getResponse().getContentAsString();
+        json = doGet("/task/" + id.toString());
         var saved = parseTask(json);
         assertThat(saved).isEqualTo(created);
     }
 
     @Test
     void create_a_task_then_mark_it_complete() throws Exception {
-        var json = doPost("/task", "new task").andReturn().getResponse().getContentAsString();
+        var json = doPost("/task", "new task");
         var created = parseTask(json);
-
         var id = created.getId();
+
         doPost("/task/" + id.toString() + "/complete", "");
 
-
-        json = doGet("/task/" + id).andReturn().getResponse().getContentAsString();
+        json = doGet("/task/" + id);
         var saved = parseTask(json);
         var completedTask = new Task(id, "new task", true);
         assertThat(saved).isEqualTo(completedTask);
     }
 
-    private ResultActions doGet(String url) throws Exception {
-        return mockMvc.perform(get(url));
+    private String doGet(String url) throws Exception {
+        return mockMvc.perform(get(url)).andReturn().getResponse().getContentAsString();
     }
 
-    private ResultActions doPost(String url, String json) throws Exception {
+    private String doPost(String url, String json) throws Exception {
         return mockMvc.perform(post(url).contentType(APPLICATION_JSON_UTF8)
-            .content(json));
+            .content(json)).andReturn().getResponse().getContentAsString();
     }
 
 }
